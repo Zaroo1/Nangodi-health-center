@@ -1,0 +1,17 @@
+{
+  "short_name": "Nangodi Records",
+  "name": "Nangodi Health Centre Digital Records System",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2966/2966327.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#f8fafc",
+  "theme-color": "#1e3a8a",
+  "display": "standalone",
+  "orientation": "portrait-primary"
+}
