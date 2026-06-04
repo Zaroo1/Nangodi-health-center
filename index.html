@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Nangodi Health Centre Digital Records System</title>
+
+<link rel="stylesheet" href="style.css">
+
+<meta name="theme-color" content="#0b8a5a">
+
+<link rel="manifest" href="manifest.json">
+
+</head>
+
+<body>
+
+<!-- LOGIN SCREEN -->
+
+<div id="loginScreen" class="login-screen">
+
+    <div class="login-card">
+
+        <div class="login-header">
+
+            <h1>Nangodi Health Centre</h1>
+
+            <p>Digital Records System</p>
+
+        </div>
+
+        <form id="loginForm">
+
+            <input
+                type="text"
+                id="username"
+                placeholder="Username"
+                required
+            >
+
+            <input
+                type="password"
+                id="password"
+                placeholder="Password"
+                required
+            >
+
+            <button type="submit">
+                Login
+            </button>
+
+        </form>
+
+        <div class="login-footer">
+
+            Development by UDS TTFPP GROUP 149<br>
+            2025/2026 Academic Year
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- MAIN APPLICATION -->
+
+<div id="appContainer" class="app-container">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-header">
+
+            <h2>NHC</h2>
+
+            <span>Digital Records</span>
+
+        </div>
+
+        <nav>
+
+            <ul>
+
+                <li class="menu-item active" data-page="dashboard">
+                    Dashboard
+                </li>
+
+                <li class="menu-item" data-page="patients">
+                    Patient Registration
+                </li>
+
+                <li class="menu-item" data-page="consultation">
+                    Consultation
+                </li>
+
+                <li class="menu-item" data-page="anc">
+                    Maternal Health (ANC)
+                </li>
+
+                <li class="menu-item" data-page="child">
+                    Child Welfare
+                </li>
+
+                <li class="menu-item" data-page="pharmacy">
+                    Pharmacy
+                </li>
+
+                <li class="menu-item" data-page="outreach">
+                    Community Outreach
+                </li>
+
+                <li class="menu-item" data-page="surveillance">
+                    Disease Surveillance
+                </li>
+
+               <section id="pending" class="page">
+
+<div class="module-card">
+
+<h2>Pending Submissions</h2>
+
+<button id="submitSelectedBtn">
+
+Submit Selected
+
+</button>
+
+<button id="submitAllBtn">
+
+Submit All
+
+</button>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Select</th>
+
+<th>Patient ID</th>
+
+<th>Name</th>
+
+<th>Status</th>
+
+</tr>
+
+</thead>
+
+<tbody id="pendingTable">
+
+</tbody>
+
+</table>
+
+</div>
+
+</section>
+
+                <li class="menu-item" data-page="settings">
+                    Settings
+                </li>
+
+            </ul>
+
+        </nav>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+
+    <main class="content">
+
+        <!-- TOP BAR -->
+
+        <header class="topbar">
+
+            <div>
+
+                <h1 id="pageTitle">
+                    Dashboard
+                </h1>
+
+                <small id="userInfo">
+                    User
+                </small>
+
+            </div>
+
+            <button id="logoutBtn">
+                Logout
+            </button>
+
+        </header>
+
+        <!-- DASHBOARD PAGE -->
+
+        <section id="dashboard" class="page active-page">
+
+            <div class="card-grid">
+
+                <div class="card">
+                    <h3>Total Patients Today</h3>
+                    <h2 id="totalPatients">0</h2>
+                </div>
+
+                <div class="card">
+                    <h3>ANC Visits Today</h3>
+                    <h2 id="ancVisits">0</h2>
+                </div>
+
+                <div class="card">
+                    <h3>Child Welfare Visits</h3>
+                    <h2 id="childVisits">0</h2>
+                </div>
+
+                <div class="card">
+                    <h3>Drug Alerts</h3>
+                    <h2 id="drugAlerts">0</h2>
+                </div>
+
+            </div>
+
+            <div class="card-grid">
+
+                <div class="card status-draft">
+                    <h3>Draft Records</h3>
+                    <h2 id="draftCount">0</h2>
+                </div>
+
+                <div class="card status-ready">
+                    <h3>Ready</h3>
+                    <h2 id="readyCount">0</h2>
+                </div>
+
+                <div class="card status-synced">
+                    <h3>Synced</h3>
+                    <h2 id="syncedCount">0</h2>
+                </div>
+
+                <div class="card status-failed">
+                    <h3>Failed</h3>
+                    <h2 id="failedCount">0</h2>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- PATIENT PAGE -->
+
+        <section id="patients" class="page">
+
+            <div class="module-card">
+
+                <h2>Patient Registration</h2>
+
+                <form id="patientForm">
+
+                    <div class="form-grid">
+
+                        <input
+                            type="text"
+                            id="fullName"
+                            placeholder="Full Name"
+                            required
+                        >
+
+                        <input
+                            type="number"
+                            id="age"
+                            placeholder="Age"
+                        >
+
+                        <select id="sex">
+
+                            <option value="">
+                                Select Sex
+                            </option>
+
+                            <option>
+                                Male
+                            </option>
+
+                            <option>
+                                Female
+                            </option>
+
+                        </select>
+
+                        <input
+                            type="text"
+                            id="phone"
+                            placeholder="Phone Number"
+                        >
+
+                        <input
+                            type="text"
+                            id="community"
+                            placeholder="Community"
+                        >
+
+                        <input
+                            type="text"
+                            id="nhis"
+                            placeholder="NHIS Number"
+                        >
+
+                        <input
+                            type="text"
+                            id="nextOfKin"
+                            placeholder="Next of Kin"
+                        >
+
+                    </div>
+
+                    <button type="submit">
+                        Save Draft
+                    </button>
+
+                </form>
+
+            </div>
+
+            <div class="module-card">
+
+                <h2>Draft Patients</h2>
+<div style="margin-bottom:15px;">
+
+<input
+type="text"
+id="searchPatient"
+placeholder="Search patient..."
+>
+
+</div>
+
+                <table>
+<thead>
+
+<tr>
+
+<th>Select</th>
+
+<th>Patient ID</th>
+
+<th>Name</th>
+
+<th>Age</th>
+
+<th>Sex</th>
+
+<th>Status</th>
+
+<th>Created By</th>
+
+<th>Actions</th>
+
+</tr>
+
+</thead>
+
+                    <tbody id="patientTable">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+        <!-- PLACEHOLDER PAGES -->
+
+        <section id="consultation" class="page">
+            <div class="coming-soon">
+                Consultation Module Coming Next
+            </div>
+        </section>
+
+        <section id="anc" class="page">
+            <div class="coming-soon">
+                ANC Module Coming Next
+            </div>
+        </section>
+
+        <section id="child" class="page">
+            <div class="coming-soon">
+                Child Welfare Module Coming Next
+            </div>
+        </section>
+
+        <section id="pharmacy" class="page">
+            <div class="coming-soon">
+                Pharmacy Module Coming Next
+            </div>
+        </section>
+
+        <section id="outreach" class="page">
+            <div class="coming-soon">
+                Community Outreach Module Coming Next
+            </div>
+        </section>
+
+        <section id="surveillance" class="page">
+            <div class="coming-soon">
+                Disease Surveillance Module Coming Next
+            </div>
+        </section>
+
+        <section id="pending" class="page">
+            <div class="coming-soon">
+                Synchronization Center Coming Next
+            </div>
+        </section>
+
+        <section id="settings" class="page">
+            <div class="coming-soon">
+                System Settings Coming Next
+            </div>
+        </section>
+
+    </main>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+
+</html>
