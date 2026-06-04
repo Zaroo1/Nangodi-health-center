@@ -1,437 +1,379 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nangodi Health Centre Digital Records System</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e3a8a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-hover: #1d4ed8;
+            --secondary: #0d9488;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --draft: #f59e0b;
+            --ready: #3b82f6;
+            --synced: #10b981;
+            --failed: #ef4444;
+        }
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--background); color: var(--text); padding-bottom: 60px; }
+        
+        header { background-color: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        header h1 { font-size: 1.3rem; font-weight: 700; }
+        .system-status { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; }
+        .badge { padding: 4px 8px; border-radius: 12px; font-weight: bold; font-size: 0.75rem; color: white; }
+        .badge-online { background-color: var(--synced); }
+        .badge-offline { background-color: var(--failed); }
 
-<title>Nangodi Health Centre Digital Records System</title>
+        /* Secure Identity Gate Screen Overlay */
+        #login-screen { position: fixed; top:0; left:0; width:100vw; height:100vh; background: #0f172a; z-index: 9999; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .login-card { background: var(--surface); width: 100%; max-width: 400px; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); text-align: center; }
+        .login-card h2 { color: var(--primary); font-size: 1.4rem; margin-bottom: 8px; }
+        .login-card p { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px; }
+        .login-input-group { text-align: left; margin-bottom: 15px; }
+        .login-input-group label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 5px; color: var(--text); text-transform: uppercase; }
+        .login-input-group input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 1.1rem; text-align: center; background: var(--background); }
+        .login-input-group input:focus { outline: 2px solid var(--primary); background: #fff; }
 
-<link rel="stylesheet" href="style.css">
+        /* Main Workspace Controls */
+        #main-workspace { display: none; }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
+        
+        /* Active Audit Session Identification Card */
+        .user-session-bar { background: var(--surface); padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--secondary); }
+        .active-user-meta { font-size: 0.9rem; color: var(--text); }
+        .active-user-meta strong { color: var(--primary); }
+        
+        /* Modular Interface Navigation Tabs */
+        .nav-tabs { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-bottom: 25px; }
+        .tab-btn { background: var(--surface); border: 1px solid var(--border); padding: 12px 8px; font-weight: 600; font-size: 0.85rem; color: var(--text-muted); cursor: pointer; border-radius: 6px; text-align: center; transition: all 0.2s ease; display: flex; flex-direction: column; align-items: center; gap: 6px; user-select: none; }
+        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-<meta name="theme-color" content="#0b8a5a">
+        .module-panel { display: none; }
+        .module-panel.active { display: block; }
 
-<link rel="manifest" href="manifest.json">
+        /* Analytic Aggregation Dashboard Grid */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .card { background: var(--surface); border-radius: 8px; padding: 20px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: relative; }
+        .card h3 { font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; letter-spacing: 0.5px; }
+        .card .value { font-size: 1.8rem; font-weight: 700; color: var(--text); }
+        .card.draft-card { border-left: 4px solid var(--draft); }
+        .card.ready-card { border-left: 4px solid var(--ready); }
+        .card.synced-card { border-left: 4px solid var(--synced); }
+        .card.failed-card { border-left: 4px solid var(--failed); }
 
+        /* Clean Structural Workspace Forms */
+        .form-card { background: var(--surface); padding: 25px; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .form-card h2 { margin-bottom: 20px; font-size: 1.25rem; color: var(--primary); border-bottom: 2px solid var(--background); padding-bottom: 10px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+        .form-group input, .form-group select, .form-group textarea { padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95rem; background: var(--background); width: 100%; color: var(--text); }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: 2px solid var(--primary); background: #fff; }
+        
+        .btn-row { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; }
+        button.btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.95rem; transition: background 0.2s; display: inline-flex; align-items: center; justify-content: center; }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-secondary { background-color: #e2e8f0; color: var(--text); }
+        .btn-secondary:hover { background-color: #cbd5e1; }
+        .btn-danger { background-color: var(--failed); color: white; }
+        .btn-sync { background-color: var(--secondary); color: white; }
+
+        /* High Density Table Matrices */
+        .table-responsive { width: 100%; overflow-x: auto; background: var(--surface); border-radius: 8px; border: 1px solid var(--border); margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+        th { background: #f1f5f9; font-weight: 600; color: var(--text); }
+        tr:hover { background-color: #f8fafc; }
+        
+        .status-pill { padding: 3px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+        .status-draft { background: #fef3c7; color: #d97706; }
+        .status-ready { background: #dbeafe; color: #2563eb; }
+        .status-synced { background: #d1fae5; color: #059669; }
+        .status-failed { background: #fee2e2; color: #dc2626; }
+
+        .actions-cell { display: flex; gap: 8px; }
+        .action-btn { padding: 4px 8px; border: none; border-radius: 4px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+        .action-edit { background: #e0f2fe; color: #0369a1; }
+        .action-delete { background: #fee2e2; color: #b91c1c; }
+
+        .sync-control-box { background: var(--surface); border: 1px solid var(--border); padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px; }
+        
+        footer { background: #1e293b; color: #94a3b8; text-align: center; padding: 15px; font-size: 0.8rem; border-top: 1px solid #334155; position: fixed; bottom: 0; left: 0; right: 0; height: 50px; z-index: 100; }
+        footer strong { color: #f1f5f9; }
+    </style>
 </head>
-
 <body>
 
-<!-- LOGIN SCREEN -->
-
-<div id="loginScreen" class="login-screen">
-
-    <div class="login-card">
-
-        <div class="login-header">
-
-            <h1>Nangodi Health Centre</h1>
-
-            <p>Digital Records System</p>
-
+    <div id="login-screen">
+        <div class="login-card">
+            <h2>Nangodi Health Centre</h2>
+            <p>Digital Records Management Gateway</p>
+            
+            <form id="system-login-form" onsubmit="executeLocalAuthenticationCheck(event)">
+                <div class="login-input-group">
+                    <label>Assigned Staff ID</label>
+                    <input type="text" id="login-staff-id" placeholder="e.g. NUG001" required autocomplete="username">
+                </div>
+                <div class="login-input-group">
+                    <label>4-Digit Security PIN</label>
+                    <input type="password" id="login-staff-pin" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="••••" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; margin-top: 10px;">Verify Identity Offline</button>
+            </form>
+            
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border);">
+                <button type="button" class="btn btn-secondary" style="font-size: 0.8rem; width: 100%;" onclick="downloadLatestUserDirectoryFromServer()">
+                    🔄 Update User Profiles (Online Only)
+                </button>
+            </div>
         </div>
-
-        <form id="loginForm">
-
-            <input
-                type="text"
-                id="username"
-                placeholder="Username"
-                required
-            >
-
-            <input
-                type="password"
-                id="password"
-                placeholder="Password"
-                required
-            >
-
-            <button type="submit">
-                Login
-            </button>
-
-        </form>
-
-        <div class="login-footer">
-
-            Development by UDS TTFPP GROUP 149<br>
-            2025/2026 Academic Year
-
-        </div>
-
     </div>
 
-</div>
+    <div id="main-workspace">
+        <header>
+            <h1>Nangodi Health Centre Records</h1>
+            <div class="system-status">
+                <span id="network-badge" class="badge badge-online">Network Scanning...</span>
+            </div>
+        </header>
 
-<!-- MAIN APPLICATION -->
+        <div class="container">
+            
+            <div class="user-session-bar">
+                <div class="active-user-meta">
+                    Active Session: <strong id="session-display-name">Loading Profile...</strong> | Role: <span id="session-display-role" style="font-weight: 600;">...</span> (ID: <span id="session-display-id">...</span>)
+                </div>
+                <button class="btn btn-danger" style="padding: 5px 12px; font-size: 0.8rem;" onclick="logoutCurrentUserSession()">Secure Lock / Exit</button>
+            </div>
 
-<div id="appContainer" class="app-container">
+            <nav class="nav-tabs">
+                <div class="tab-btn active" onclick="switchTab('dashboard')">📊 Dashboard</div>
+                <div class="tab-btn" onclick="switchTab('patient-reg')">👤 Patient Reg</div>
+                <div class="tab-btn" onclick="switchTab('consultation')">🩺 Consultation</div>
+                <div class="tab-btn" onclick="switchTab('anc')">🤰 Maternal (ANC)</div>
+                <div class="tab-btn" onclick="switchTab('child-welfare')">👶 Child Welfare</div>
+                <div class="tab-btn" onclick="switchTab('pharmacy')">💊 Pharmacy</div>
+                <div class="tab-btn" onclick="switchTab('outreach')">🌍 Outreach</div>
+                <div class="tab-btn" onclick="switchTab('surveillance')">🚨 Surveillance</div>
+                <div class="tab-btn" onclick="switchTab('pending-review')">📋 Pending Sync</div>
+            </nav>
 
-    <!-- SIDEBAR -->
+            <input type="hidden" id="editing-record-id" value="">
 
-    <aside class="sidebar">
+            <div id="dashboard" class="module-panel active">
+                <div class="dashboard-grid">
+                    <div class="card basic-card"><h3>Patients Served Today</h3><div class="value" id="dash-patients-today">0</div></div>
+                    <div class="card basic-card"><h3>ANC Visits Today</h3><div class="value" id="dash-anc-today">0</div></div>
+                    <div class="card basic-card"><h3>Child Welfare Today</h3><div class="value" id="dash-child-today">0</div></div>
+                    <div class="card failed-card"><h3>Low Stock / Drug Alerts</h3><div class="value" id="dash-drug-alerts" style="color: var(--failed)">0</div></div>
+                </div>
+                <h2 style="margin-bottom: 15px; font-size: 1.1rem; color: var(--primary);">LOCAL TRANSACTION LEDGER OVERVIEW</h2>
+                <div class="dashboard-grid">
+                    <div class="card draft-card"><h3>Draft Records</h3><div class="value" id="dash-status-draft">0</div></div>
+                    <div class="card ready-card"><h3>Ready for Sync</h3><div class="value" id="dash-status-ready">0</div></div>
+                    <div class="card synced-card"><h3>Synced to Cloud</h3><div class="value" id="dash-status-synced">0</div></div>
+                    <div class="card failed-card"><h3>Failed Syncs</h3><div class="value" id="dash-status-failed">0</div></div>
+                </div>
+            </div>
 
-        <div class="sidebar-header">
+            <div id="patient-reg" class="module-panel">
+                <div class="form-card">
+                    <h2>Patient Registration Intake Form</h2>
+                    <form id="form-patient-reg" onsubmit="handleFormSubmission(event, 'Patient Registration')">
+                        <div class="form-grid">
+                            <div class="form-group"><label>Patient ID / Folder Number *</label><input type="text" name="Patient ID" required></div>
+                            <div class="form-group"><label>Full Name *</label><input type="text" name="Full Name" required></div>
+                            <div class="form-grid" style="margin:0; padding:0; gap:10px;">
+                                <div class="form-group"><label>Age *</label><input type="number" name="Age" required></div>
+                                <div class="form-group"><label>Sex *</label><select name="Sex" required><option value="Female">Female</option><option value="Male">Male</option></select></div>
+                            </div>
+                            <div class="form-group"><label>Phone Number</label><input type="tel" name="Phone Number"></div>
+                            <div class="form-group"><label>Community / Locality *</label><input type="text" name="Community" required></div>
+                            <div class="form-group"><label>NHIS Number</label><input type="text" name="NHIS Number"></div>
+                            <div class="form-group"><label>Next of Kin Name & Contact</label><input type="text" name="Next of Kin"></div>
+                        </div>
+                        <div class="btn-row">
+                            <button type="button" class="btn btn-secondary" onclick="saveAsDraft('Patient Registration', 'form-patient-reg')">Save Draft</button>
+                            <button type="submit" class="btn btn-primary">Mark Ready for Submission</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
-            <h2>NHC</h2>
+            <div id="consultation" class="module-panel">
+                <div class="form-card">
+                    <h2>Clinical Consultation Intake Data</h2>
+                    <form id="form-consultation" onsubmit="handleFormSubmission(event, 'Consultation Module')">
+                        <div class="form-grid">
+                            <div class="form-group"><label>Consultation Date *</label><input type="date" name="Date" required></div>
+                            <div class="form-group"><label>Patient ID / Folder Reference *</label><input type="text" name="Patient ID" required></div>
+                            <div class="form-group"><label>Vital Signs (BP, Temp, Pulse, RR) *</label><input type="text" name="Vital Signs" placeholder="e.g. 120/80 mmHg, 37°C" required></div>
+                            <div class="form-group"><label>Presenting Symptoms *</label><textarea name="Symptoms" rows="2" required></textarea></div>
+                            <div class="form-group"><label>Clinical Diagnosis *</label><textarea name="Diagnosis" rows="2" required></textarea></div>
+                            <div class="form-group"><label>Treatment / Prescribed Regimen *</label><textarea name="Treatment" rows="2" required></textarea></div>
+                            <div class="form-group"><label>Referral Out / Information Notes</label><input type="text" name="Referral Information"></div>
+                        </div>
+                        <div class="btn-row">
+                            <button type="button" class="btn btn-secondary" onclick="saveAsDraft('Consultation Module', 'form-consultation')">Save Draft</button>
+                            <button type="submit" class="btn btn-primary">Mark Ready for Submission</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
-            <span>Digital Records</span>
+            <div id="anc" class="module-panel">
+                <div class="form-card">
+                    <h2>Antenatal Care (ANC) Clinic Record</h2>
+                    <form id="form-anc" onsubmit="handleFormSubmission(event, 'Maternal Health (ANC)')">
+                        <div class="form-grid">
+                            <div class="form-group"><label>Patient Folder ID *</label><input type="text" name="Patient ID" required></div>
+                            <div class="form-group"><label>Maternal Full Name *</label><input type="text" name="Patient Name" required></div>
+                            <div class="form-group"><label>ANC Visit Number *</label><select name="ANC Visit Number" required><option value="ANC 1">ANC 1</option><option value="ANC 2">ANC 2</option><option value="ANC 3">ANC 3</option><option value="ANC 4">ANC 4</option><option value="ANC 5+">ANC 5+</option></select></div>
+                            <div class="form-group"><label>Expected Delivery Date (EDD) *</label><input type="date" name="Expected Delivery Date" required></div>
+                            <div class="form-group"><label>Maternal Risk Assessment Status *</label><select name="Risk Status" required><option value="Low Risk">Low Risk</option><option value="Medium Risk">Medium Risk</option><option value="High Risk">High Risk (Escalate)</option></select></div>
+                            <div class="form-group"><label>Clinical & Supplementation Notes</label><textarea name="Notes" rows="2"></textarea></div>
+                        </div>
+                        <div class="btn-row">
+                            <button type="button" class="btn btn-secondary" onclick="saveAsDraft('Maternal Health (ANC)', 'form-anc')">Save Draft</button>
+                            <button type="submit" class="btn btn-primary">Mark Ready for Submission</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="child-welfare" class="module-panel">
+                <div class="form-card">
+                    <h2>Child Welfare Clinic & Vaccine Registry</h2>
+                    <form id="form-child-welfare" onsubmit="handleFormSubmission(event, 'Child Welfare')">
+                        <div class="form-grid">
+                            <div class="form-group"><label>Child Full Name *</label><input type="text" name="Child Name" required></div>
+                            <div class="form-group"><label>Date of Birth *</label><input type="date" name="Date of Birth" required></div>
+                            <div class="form-group"><label>Current Weight Monitoring (kg) *</label><input type="number" step="0.01" name="Weight Monitoring" required></div>
+                            <div class="form-group"><label>Growth Monitoring Assessment *</label><select name="Growth Monitoring" required><option value="Normal Profile">Normal Profile</option><option value="Moderate Malnutrition">Moderate Malnutrition</option><option value="Severe Malnutrition">Severe Acute Malnutrition</option></select></div>
+                            <div class="form-group"><label>Vaccines Received Today *</label><input type="text" name="Vaccines Received" placeholder="e.g. BCG, OPV-1, Penta-3" required></div>
+                        </div>
+                        <div class="btn-row">
+                            <button type="button" class="btn btn-secondary" onclick="saveAsDraft('Child Welfare', 'form-child-welfare')">Save Draft</button>
+                            <button type="submit" class="btn btn-primary">Mark Ready for Submission</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="pharmacy" class="module-panel">
+                <div class="form-card">
+                    <h2>Pharmacy Dispensation & Drug Inventory</h2>
+                    <form id="form-pharmacy" onsubmit="handleFormSubmission(event, 'Pharmacy Inventory')">
+                        <div class="form-grid">
+                            <div class="form-group"><label>Drug Common/Generic Name *</label><input type="text" name="Drug Name" placeholder="e.g. Amoxicillin 250mg" required></div>
+                            <div class="form-group"><label>Current Available Batch Quantity *</label><input type="number" name="Quantity Available" required></div>
+                            <div class="form-group"><label>Batch Expiry Date *</label><input type="date" name="Expiry Date" required></div>
+                            <div class="form-group"><label>System Low Stock Threshold Limit *</label><input type="number" name="Low Stock Alerts" value="50" required></div>
+                        </div>
+                        <div class="btn-row">
+                            <button type="button" class="btn btn-secondary" onclick="saveAsDraft('Pharmacy Inventory', 'form-pharmacy')">Save Draft</button>
+                            <button type="submit" class="btn btn-primary">Mark Ready for Submission</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="outreach" class="module-panel">
+                <div class="form-card">
+                    <h2>CHPS / Community Outreach Field Report</h2>
+                    <form id="form-outreach" onsubmit="handleFormSubmission(event, 'Community Outreach')">
+                        <div class="form-grid">
+                            <div class="form-group"><label>Field Operations Date *</label><input type="date" name="Outreach Date" required></div>
+                            <div class="form-group"><label>Community / Locality Visited *</label><input type="text" name="Community Visited" required></div>
+                            <div class="form-group"><label>Core Health Education Activities Run *</label><textarea name="Health Education Activities" rows="2" placeholder="e.g. Malaria sensitization" required></textarea></div>
+                            <div class="form-group"><label>Total Number of Inhabitants Reached *</label><input type="number" name="Number of People Reached" required></div>
+                        </div>
+                        <div class="btn-row">
+                            <button type="button" class="btn btn-secondary" onclick="saveAsDraft('Community Outreach', 'form-outreach')">Save Draft</button>
+                            <button type="submit" class="btn btn-primary">Mark Ready for Submission</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="surveillance" class="module-panel">
+                <div class="form-card">
+                    <h2>Epidemiological Disease Surveillance Tracer</h2>
+                    <form id="form-surveillance" onsubmit="handleFormSubmission(event, 'Disease Surveillance')">
+                        <div class="form-grid">
+                            <div class="form-group"><label>Disease Target Profile *</label><select name="Disease Diagnosed" required><option value="Malaria">Malaria</option><option value="Cholera">Cholera</option><option value="Yellow Fever">Yellow Fever</option><option value="CSM (Meningitis)">CSM (Meningitis)</option><option value="Measles">Measles</option><option value="Other Outbreak">Other Outbreak</option></select></div>
+                            <div class="form-group"><label>Total Number of Presenting Cases *</label><input type="number" name="Number of Cases" required></div>
+                            <div class="form-group"><label>Date Compiled *</label><input type="date" name="Date Recorded" required></div>
+                        </div>
+                        <div class="btn-row">
+                            <button type="button" class="btn btn-secondary" onclick="saveAsDraft('Disease Surveillance', 'form-surveillance')">Save Draft</button>
+                            <button type="submit" class="btn btn-primary">Mark Ready for Submission</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="pending-review" class="module-panel">
+                <div class="sync-control-box">
+                    <div>
+                        <h2 style="font-size: 1.15rem; color: var(--primary);">Manual Synchronization Operations</h2>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Select targeted localized data files to push into cloud structures.</p>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-secondary" onclick="syncSelectedRecords()">Sync Selected</button>
+                        <button class="btn btn-sync" onclick="syncAllReadyRecords()">Sync All Ready Records</button>
+                    </div>
+                </div>
+
+                <h2 style="font-size: 1.1rem; margin: 15px 0 5px 0;">Local Ledger Database Table</h2>
+                <div class="table-responsive">
+                    <table id="records-table">
+                        <thead>
+                            <tr>
+                                <th width="40px"><input type="checkbox" id="select-all-checkbox" onclick="toggleSelectAllRows(this)"></th>
+                                <th>Module Component</th>
+                                <th>Identifiers / Descriptors</th>
+                                <th>Status</th>
+                                <th>Last Modified By</th>
+                                <th>Modification Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="records-table-body">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
 
         </div>
 
-        <nav>
-
-            <ul>
-
-                <li class="menu-item active" data-page="dashboard">
-                    Dashboard
-                </li>
-
-                <li class="menu-item" data-page="patients">
-                    Patient Registration
-                </li>
-
-                <li class="menu-item" data-page="consultation">
-                    Consultation
-                </li>
-
-                <li class="menu-item" data-page="anc">
-                    Maternal Health (ANC)
-                </li>
-
-                <li class="menu-item" data-page="child">
-                    Child Welfare
-                </li>
-
-                <li class="menu-item" data-page="pharmacy">
-                    Pharmacy
-                </li>
-
-                <li class="menu-item" data-page="outreach">
-                    Community Outreach
-                </li>
-
-                <li class="menu-item" data-page="surveillance">
-                    Disease Surveillance
-                </li>
-
-               <section id="pending" class="page">
-
-<div class="module-card">
-
-<h2>Pending Submissions</h2>
-
-<button id="submitSelectedBtn">
-
-Submit Selected
-
-</button>
-
-<button id="submitAllBtn">
-
-Submit All
-
-</button>
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>Select</th>
-
-<th>Patient ID</th>
-
-<th>Name</th>
-
-<th>Status</th>
-
-</tr>
-
-</thead>
-
-<tbody id="pendingTable">
-
-</tbody>
-
-</table>
-
-</div>
-
-</section>
-
-                <li class="menu-item" data-page="settings">
-                    Settings
-                </li>
-
-            </ul>
-
-        </nav>
-
-    </aside>
-
-    <!-- MAIN CONTENT -->
-
-    <main class="content">
-
-        <!-- TOP BAR -->
-
-        <header class="topbar">
-
-            <div>
-
-                <h1 id="pageTitle">
-                    Dashboard
-                </h1>
-
-                <small id="userInfo">
-                    User
-                </small>
-
-            </div>
-
-            <button id="logoutBtn">
-                Logout
-            </button>
-
-        </header>
-
-        <!-- DASHBOARD PAGE -->
-
-        <section id="dashboard" class="page active-page">
-
-            <div class="card-grid">
-
-                <div class="card">
-                    <h3>Total Patients Today</h3>
-                    <h2 id="totalPatients">0</h2>
-                </div>
-
-                <div class="card">
-                    <h3>ANC Visits Today</h3>
-                    <h2 id="ancVisits">0</h2>
-                </div>
-
-                <div class="card">
-                    <h3>Child Welfare Visits</h3>
-                    <h2 id="childVisits">0</h2>
-                </div>
-
-                <div class="card">
-                    <h3>Drug Alerts</h3>
-                    <h2 id="drugAlerts">0</h2>
-                </div>
-
-            </div>
-
-            <div class="card-grid">
-
-                <div class="card status-draft">
-                    <h3>Draft Records</h3>
-                    <h2 id="draftCount">0</h2>
-                </div>
-
-                <div class="card status-ready">
-                    <h3>Ready</h3>
-                    <h2 id="readyCount">0</h2>
-                </div>
-
-                <div class="card status-synced">
-                    <h3>Synced</h3>
-                    <h2 id="syncedCount">0</h2>
-                </div>
-
-                <div class="card status-failed">
-                    <h3>Failed</h3>
-                    <h2 id="failedCount">0</h2>
-                </div>
-
-            </div>
-
-        </section>
-
-        <!-- PATIENT PAGE -->
-
-        <section id="patients" class="page">
-
-            <div class="module-card">
-
-                <h2>Patient Registration</h2>
-
-                <form id="patientForm">
-
-                    <div class="form-grid">
-
-                        <input
-                            type="text"
-                            id="fullName"
-                            placeholder="Full Name"
-                            required
-                        >
-
-                        <input
-                            type="number"
-                            id="age"
-                            placeholder="Age"
-                        >
-
-                        <select id="sex">
-
-                            <option value="">
-                                Select Sex
-                            </option>
-
-                            <option>
-                                Male
-                            </option>
-
-                            <option>
-                                Female
-                            </option>
-
-                        </select>
-
-                        <input
-                            type="text"
-                            id="phone"
-                            placeholder="Phone Number"
-                        >
-
-                        <input
-                            type="text"
-                            id="community"
-                            placeholder="Community"
-                        >
-
-                        <input
-                            type="text"
-                            id="nhis"
-                            placeholder="NHIS Number"
-                        >
-
-                        <input
-                            type="text"
-                            id="nextOfKin"
-                            placeholder="Next of Kin"
-                        >
-
-                    </div>
-
-                    <button type="submit">
-                        Save Draft
-                    </button>
-
-                </form>
-
-            </div>
-
-            <div class="module-card">
-
-                <h2>Draft Patients</h2>
-<div style="margin-bottom:15px;">
-
-<input
-type="text"
-id="searchPatient"
-placeholder="Search patient..."
->
-
-</div>
-
-                <table>
-<thead>
-
-<tr>
-
-<th>Select</th>
-
-<th>Patient ID</th>
-
-<th>Name</th>
-
-<th>Age</th>
-
-<th>Sex</th>
-
-<th>Status</th>
-
-<th>Created By</th>
-
-<th>Actions</th>
-
-</tr>
-
-</thead>
-
-                    <tbody id="patientTable">
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </section>
-
-        <!-- PLACEHOLDER PAGES -->
-
-        <section id="consultation" class="page">
-            <div class="coming-soon">
-                Consultation Module Coming Next
-            </div>
-        </section>
-
-        <section id="anc" class="page">
-            <div class="coming-soon">
-                ANC Module Coming Next
-            </div>
-        </section>
-
-        <section id="child" class="page">
-            <div class="coming-soon">
-                Child Welfare Module Coming Next
-            </div>
-        </section>
-
-        <section id="pharmacy" class="page">
-            <div class="coming-soon">
-                Pharmacy Module Coming Next
-            </div>
-        </section>
-
-        <section id="outreach" class="page">
-            <div class="coming-soon">
-                Community Outreach Module Coming Next
-            </div>
-        </section>
-
-        <section id="surveillance" class="page">
-            <div class="coming-soon">
-                Disease Surveillance Module Coming Next
-            </div>
-        </section>
-
-        <section id="pending" class="page">
-            <div class="coming-soon">
-                Synchronization Center Coming Next
-            </div>
-        </section>
-
-        <section id="settings" class="page">
-            <div class="coming-soon">
-                System Settings Coming Next
-            </div>
-        </section>
-
-    </main>
-
-</div>
-
-<script src="app.js"></script>
-
+        <footer>
+            Developed by <strong>UDS TTFPP GROUP 149</strong>. Support Hotlines: <strong>+233 59 816 0732</strong>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Check for Service Worker availability and initialize local offline caching middleware.
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('PWA SW Registered at context scope: ', reg.scope))
+                .catch(err => console.error('PWA SW Critical Configuration Halt: ', err));
+            });
+        }
+    </script>
 </body>
-
 </html>
