@@ -11,7 +11,7 @@ const RECORDS_STORE = 'health_records';
 const USERS_STORE = 'user_directory';
 
 // ⚠️ ACTION REQUIRED: Update this constant with your published Google Apps Script URL
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzig-vP8-ZV9YiGfMbCsCR05UrEje6fVP7JpKesiQvVmJ0EppBdqk2xlgtFU-CnOqbp/exec'; 
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxil0QqEKMVHUe7arZGr5Iwr1vKd8A2lfAmjr9abOpRWjYJMKVY3T5–kSI5a31EobRjQ/exec'; 
 
 let db = null;
 let activeSessionUser = null; // Global object holding the currently validated local worker identity
